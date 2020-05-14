@@ -1,0 +1,8 @@
+{
+    "webserver": {
+        "port": "8080"
+    },
+    "branding": {
+        "title": "Plant Tracker"
+    }
+}
