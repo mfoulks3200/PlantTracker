@@ -1,7 +1,7 @@
 {
     "webserver": {
         "port": "88",
-        "hostname": "localhost"
+        "hostname": "192.168.0.43"
     },
     "apis":{
         "trefleAPIKey":""
@@ -15,7 +15,8 @@
     "hardware": {
         "labelMaker": {
             "Manufacturer": "Dymo",
-            "LabelSize": "30252Address"
+            "LabelSize": "30252Address",
+            "Barcode": "qr"
         }
     }
 }

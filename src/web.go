@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/boombuler/barcode/code128"
+	"github.com/boombuler/barcode/qr"
 )
 
 var t *template.Template
@@ -62,7 +63,13 @@ func startWebserver() {
 	http.HandleFunc("/admin/passwordChange/doPasswordChangeAction", doPasswordChange)
 	http.HandleFunc("/api/trefle/query/", trefleQuery)
 	http.HandleFunc("/api/trefle/plant/id/", treflePlantByID)
-	log.Fatal(http.ListenAndServe(":"+config.Webserver.Port, nil))
+
+	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./templates/js"))))
+	http.Handle("/img/", http.StripPrefix("/img/", http.FileServer(http.Dir("./templates/img"))))
+	http.HandleFunc("/manifest.webmanifest", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./manifest.webmanifest")
+	})
+	log.Fatal(http.ListenAndServeTLS(":"+config.Webserver.Port, "server.crt", "server.key", nil))
 }
 
 func landingPage(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +77,11 @@ func landingPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func loginPage(w http.ResponseWriter, r *http.Request) {
+	_, valid := checkLogin(w, r)
+	if valid {
+		http.Redirect(w, r, "https://"+config.Webserver.Hostname+":"+config.Webserver.Port+"/home/", 302)
+		return
+	}
 	w.WriteHeader(200)
 	t.ExecuteTemplate(w, "login.html", nil)
 }
@@ -112,14 +124,20 @@ func genLabel(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(200)
 	w.Header().Set("Content-Type", "text/html") // <-- set the content-type header
-	t.ExecuteTemplate(w, config.Hardware.LabelMaker.LabelSize+".html", state)
+	t.ExecuteTemplate(w, config.Hardware.LabelMaker.Barcode+"-"+config.Hardware.LabelMaker.LabelSize+".html", state)
 }
 
 func genBarcode(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png") // <-- set the content-type header
 	content := r.URL.Path[len("/barcode/"):]
-	barcode, _ := code128.Encode(content)
-	png.Encode(w, barcode)
+	params := strings.Split(content, "/")
+	if params[0] == "code128" {
+		barcode, _ := code128.Encode(params[1])
+		png.Encode(w, barcode)
+	} else if params[0] == "qr" {
+		barcode, _ := qr.Encode(params[1], qr.M, qr.Auto)
+		png.Encode(w, barcode)
+	}
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {

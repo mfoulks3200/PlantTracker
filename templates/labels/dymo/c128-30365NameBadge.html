@@ -78,7 +78,7 @@
     <body>
         <div class="outline"></div>
         <div class="container">
-            <img src="../../barcode/pid{{.PlantID}}" class="barcode" width="100px" height="10px" />
+            <img src="https://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/barcode/code128/pid{{.PlantID}}" class="barcode" width="100px" height="10px" />
             <div class="plantName">{{.PlantName}}</div>
             <div class="plantInfo">{{.PlantVariety}} {{.PlantVarietyFamily}}</div>
             <div class="dateInfo"><b>Planted</b><br />{{.PlantDate}}<br /><b>Sprout</b><br />{{.AvgSprout}}<br /><b>Harvest</b><br />{{.AvgHarvest}}<br /></div>

@@ -26,6 +26,7 @@ type Config struct {
 		LabelMaker struct {
 			Manufacturer string `json:"Manufacturer"`
 			LabelSize    string `json:"LabelSize"`
+			Barcode      string `json:"Barcode"`
 		} `json:"labelMaker"`
 	} `json:"hardware"`
 }

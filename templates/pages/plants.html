@@ -1,7 +1,15 @@
 {{define "plantList"}}
+        <div class="row toolbar">
+          <div class="col-12">
+              <button class="btn btn-outline-primary print-labels">Print Labels</button>
+              <br />
+              <br />
+          </div>
+        </div>
         <table class="table">
             <thead>
               <tr>
+                <th scope="col">&nbsp;&nbsp;&nbsp;<input name="all" id="all" type="checkbox" value="" class="select all">&nbsp;</th>
                 <th scope="col">Plant Name</th>
                 <th scope="col">Variety</th>
                 <th scope="col">Catagory</th>
@@ -13,6 +21,7 @@
             <tbody>
               {{range .Plants.Plants}}
                 <tr>
+                    <td>&nbsp;&nbsp;&nbsp;<input type="checkbox" name="{{.PlantID}}" id="{{.PlantID}}" class="select {{.PlantID}}" value="{{.PlantID}}">&nbsp;</td>
                     <td>{{.PlantName}}</td>
                     <td>{{.Variety.VarietyName}}</td>
                     <td>{{.Variety.VarietyCatagory}}</td>
@@ -23,4 +32,71 @@
               {{end}}
             </tbody>
           </table>
+          <script>
+            var all = false;
+            let selectedItems = [];
+
+            $(document).ready(function(){
+              $(".toolbar").hide();
+              $(".select.all").change(function(){
+                all = !all;
+                if(all){
+                    $(".select").prop( "checked", true );
+                    selectedItems = [];
+                    $(".select").not(".all").each(function(){
+                      selectedItems.push($(this).attr("id"));
+                    });
+                }else{
+                  $(".select").prop( "checked", false );
+                  selectedItems = []
+                }
+                toolbar();
+              });
+
+              $(".select").not(".all").change(function(){
+                if(selectedItems.includes($(this).attr("id"))){
+                  lookingFor = $(this).attr("id");
+                  var index = selectedItems.findIndex(getI);
+                  selectedItems.splice(index,1);
+                }else{
+                  selectedItems.push($(this).attr("id"));
+                }
+                if(selectedItems.length > 0){
+                  $(".select#all").prop( "checked", true );
+                  if($(".select").not(".all").length > selectedItems.length){
+                    $(".select#all").prop("indeterminate", true);
+                  }else{
+                    $(".select#all").prop("indeterminate", false);
+                  }
+                  all = true;
+                }else{
+                  $(".select#all").prop( "checked", false );
+                  $(".select#all").prop("indeterminate", false);
+                  all = false;
+                }
+                toolbar();
+              });
+            });
+            
+            var lookingFor = 0;
+            function getI(ID) {
+              return ID == lookingFor;
+            }
+
+            function toolbar(){
+              if(selectedItems.length > 0){
+                $(".toolbar").show();
+              }else{
+                $(".toolbar").hide();
+              }
+            }
+
+            $(".print-labels").click(function(){
+              var url = "";
+              for(var i = 0; i < selectedItems.length; i++){
+                url += "/"+selectedItems[i];
+              }
+              $("body").append("<iframe src='https://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/label/p"+url+"' style='display:none;'></iframe>");
+            });
+          </script>
   {{end}}

@@ -5,23 +5,30 @@
         {{if (eq $extID .PlantID)}}
             <div class="container">
                 <div class="row">
-                    <div class="col-3">
+                    <div class="col-md-3 col-12">
                         <img src="https://dummyimage.com/200x200/000/ffffff&text=Plant+Image" class="rounded float-left" alt="...">
                     </div>
-                    <div class="col-9 profile">
+                    <div class="col-md-9 col-12 profile">
                         <h1>{{.PlantName}}</h1>
                         {{.Variety.VarietyName}} {{.Variety.VarietyFamily}} <br /><br />
                         <h6>Actions</h6>
-                        <a href=""><button type="button" class="btn btn-outline-primary">Mark As Watered</button></a>
-                        <button type="button" class="btn btn-outline-primary print-label">Print Label</button>
+                        <div class="btn-group" role="group" aria-label="Actions">
+                            <button type="button" class="btn btn-outline-primary">Mark As Watered</button>
+                            <button type="button" class="btn btn-outline-primary print-label">ID Label</button>
+                            <button type="button" class="btn btn-outline-primary">Scan2Water Label</button>
+                            <button type="button" class="btn btn-outline-primary">Jump To Group</button>
+                        </div>
                     </div>
                 </div>
             </div>
             <script>
                 $(document).ready(function(){
+                    if($(document).width()<700){
+                        $(".btn-group").removeClass("btn-group").addClass("btn-group-vertical btn-block");
+                    }
                     $(".print-label").click(function(){
                         console.log("http://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/label/p/{{.PlantID}}");
-                        $("body").append("<iframe src='http://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/label/p/{{.PlantID}}' style='display:none;'></iframe>");
+                        $("body").append("<iframe src='https://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/label/p/{{.PlantID}}' style='display:none;'></iframe>");
                     });
                 });
             </script>
