@@ -1,3 +1,21 @@
 {{define "userProfile"}}
-    User Profile
+    {{$extID := .ID}}
+    {{$main := .}}
+    {{range .Users.Users}}
+        {{if (eq $extID .UserID)}}
+            <div class="container">
+                <div class="row">
+                    <div class="col-3">
+                        <img src="https://dummyimage.com/200x200/000/ffffff&text=User+Avatar" class="rounded float-left" alt="...">
+                    </div>
+                    <div class="col-9">
+                        <h1>{{.Username}}</h1>
+                        <h6>Actions</h6>
+                        <a href="http://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/admin/passwordChange/{{.UserID}}"><button type="button" class="btn btn-outline-primary">Change Password</button></a>
+                        <a href="http://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/admin/deleteAccount/{{.UserID}}"><button type="button" class="btn btn-outline-danger">Delete Account</button></a>
+                    </div>
+                </div>
+            </div>
+        {{end}}
+    {{end}}
 {{end}}

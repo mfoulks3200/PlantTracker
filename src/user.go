@@ -68,15 +68,16 @@ func getUser(username string, password string) (usr User, found int) {
 	return
 }
 
-func loginUser(username string, password string) bool {
-	var _, err = getUser(username, password)
+func loginUser(username string, password string) (u User, success bool) {
+	var user, err = getUser(username, password)
 	if err == 0 {
 		var _, er = db.Exec("update users set hash = ? where username = ?", string(hashAndSalt([]byte(password))), username)
 		if er != nil {
 			logMessage("Core", "user update err")
 			//log.Fatal(err)
 		}
-		return false
+		success = false
+		return
 	} else {
 		t := time.Now()
 		var _, er = db.Exec("update users set lastLogin = "+t.String()+" where username = ?", username)
@@ -84,7 +85,17 @@ func loginUser(username string, password string) bool {
 			logMessage("Core", "user update err")
 			//log.Fatal(err)
 		}
-		return true
+		success = true
+		u = user
+		return
+	}
+}
+
+func changeUserPass(userID int, password string) {
+	var _, er = db.Exec("update users set hash = ? where userID = ?", string(hashAndSalt([]byte(password))), userID)
+	if er != nil {
+		logMessage("Core", "user update err")
+		//log.Fatal(err)
 	}
 }
 
@@ -102,4 +113,23 @@ func hashAndSalt(pwd []byte) string {
 	// GenerateFromPassword returns a byte slice so we need to
 	// convert the bytes to a string and return it
 	return string(hash)
+}
+
+func createUser(u User) (user User) {
+
+	t := time.Now()
+	db.Exec("INSERT INTO users (username, lastLogin, hash) VALUES (?, ?, 'noHash');", u.Username, t.String())
+	users := getAllUsers()
+	for i := 0; i < len(users.Users); i++ {
+		if users.Users[i].Username == u.Username {
+			user = users.Users[i]
+			return
+		}
+	}
+	return
+}
+
+func deleteUser(userID int) {
+	db.Exec("DELETE FROM users WHERE userID = ?", userID)
+	return
 }

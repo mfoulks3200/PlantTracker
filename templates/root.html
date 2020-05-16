@@ -138,6 +138,7 @@
       }
     </style>
     <!-- Custom styles for this template -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   </head>
   <body>
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
@@ -166,7 +167,7 @@
             </a>
           </li>
           <li class="nav-item">
-            {{if (eq .Page "plants")}}
+            {{if or (eq .Page "plants") (eq .Page "plant")}}
               <a class="nav-link active" href="http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/plants">
             {{else}}
               <a class="nav-link" href="http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/plants">
@@ -176,13 +177,23 @@
             </a>
           </li>
           <li class="nav-item">
+            {{if or (eq .Page "varieties") (eq .Page "variety") (eq .Page "newVarietyTrefle")}}
+              <a class="nav-link active" href="http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/varieties">
+            {{else}}
+              <a class="nav-link" href="http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/varieties">
+            {{end}}
+              <span data-feather="git-branch"></span>
+              Varieties
+            </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="#">
               <span data-feather="grid"></span>
               Groups
             </a>
           </li>
           <li class="nav-item">
-            {{if (eq .Page "users")}}
+              {{if or (eq .Page "users") (eq .Page "user")}}
               <a class="nav-link active" href="http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/users">
             {{else}}
               <a class="nav-link" href="http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/users">
@@ -250,28 +261,39 @@
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">{{.PageTitle}}</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group mr-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-          </div>
-          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+          {{if (eq .Page "varieties")}}
+              <a href="http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/varieties/trefle"><button type="button" class="btn btn-sm btn-outline-secondary">New From Trefle<div style="font-size: 5pt;float: right;margin-top: 1px;">Beta</div></button></a>&nbsp;
+              <a href="http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/varieties/new"><button type="button" class="btn btn-sm btn-outline-secondary">New From Scratch</button></a>
+          {{else if (eq .Page "users")}}
+              <a href="http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/users/new"><button type="button" class="btn btn-sm btn-outline-secondary">New</button></a>
+          {{end}}
+          <!--<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
             <span data-feather="calendar"></span>
             This week
-          </button>
+          </button>!-->
         </div>
       </div>
         {{if (eq .Page "users")}}
           {{template "userList" .}}
         {{else if (eq .Page "user")}}
           {{template "userProfile" .}}
+          {{else if (eq .Page "newUser")}}
+            {{template "newUser" .}}
         {{else if (eq .Page "plants")}}
             {{template "plantList" .}}
+        {{else if (eq .Page "plant")}}
+            {{template "plantProfile" .}}
+        {{else if (eq .Page "varieties")}}
+            {{template "varieties" .}}
+        {{else if (eq .Page "newVariety")}}
+            {{template "newVariety" .}}
+        {{else if (eq .Page "newVarietyTrefle")}}
+            {{template "newVarietyTrefle" .}}
         {{end}}
 
     </main>
   </div>
 </div>
-      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
       <script>window.jQuery || document.write('<script src="/docs/4.3/assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>

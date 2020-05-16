@@ -13,6 +13,12 @@ type Config struct {
 		Port     string `json:"port"`
 		Hostname string `json:"hostname"`
 	} `json:"webserver"`
+	APIKeys struct {
+		Trefle string `json:"trefleAPIKey"`
+	} `json:"apis"`
+	Sessions struct {
+		Expiry string `json:"sessionExpiry"`
+	} `json:"sessions"`
 	Branding struct {
 		Title string `json:"title"`
 	} `json:"branding"`

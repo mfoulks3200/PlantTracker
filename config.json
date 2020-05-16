@@ -3,6 +3,12 @@
         "port": "88",
         "hostname": "localhost"
     },
+    "apis":{
+        "trefleAPIKey":"REGISTERFORAKEY"
+    },
+    "sessions": {
+        "sessionExpiry": "3"
+    },
     "branding": {
         "title": "Plant Tracker"
     },

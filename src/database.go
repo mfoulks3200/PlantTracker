@@ -3,17 +3,30 @@ package main
 import (
 	"database/sql"
 	"log"
+	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
+type PlantList struct {
+	Plants []Plant
+}
+
+type VarietyList struct {
+	Varieties []Variety
+}
+
 type Plant struct {
-	PlantID      int
-	PlantName    string
-	PlantVariety string
-	BelongsTo    int
-	LocationID   int
-	PlantDate    string
+	PlantID       int
+	PlantName     string
+	PlantVariety  string
+	VarietyFamily string
+	PlantCatagory string
+	VarietyName   string
+	BelongsTo     int
+	LocationID    int
+	PlantDate     string
+	LocationName  string
 }
 
 type Variety struct {
@@ -27,6 +40,12 @@ type Variety struct {
 	AvgHarvest       int
 }
 
+type Location struct {
+	LocationID   int
+	LocationName string
+	BelongsTo    int
+}
+
 var db, sqlerr = sql.Open("sqlite3", "./planttracker.db")
 
 func initDB() {
@@ -37,6 +56,75 @@ func initDB() {
 		log.Fatal(sqlerr)
 	}
 
+}
+
+func getAllVarieties() VarietyList {
+	var stmt, err = db.Query("select * from `varieties`")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+	var plnts VarietyList
+	for stmt.Next() {
+		var plnt Variety
+		err = stmt.Scan(&plnt.VarietyID, &plnt.VarietyName, &plnt.VarietyFamily, &plnt.VarietyCatagory, &plnt.SunlightCatagory, &plnt.WaterCatagory, &plnt.AvgSprout, &plnt.AvgHarvest)
+		if err != nil {
+			logMessage("Core", "user lookup error")
+			log.Fatal(err)
+		}
+		plnts.Varieties = append(plnts.Varieties, plnt)
+	}
+	err = stmt.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return plnts
+}
+
+func getAllPlants(userID int) PlantList {
+	var query string
+	if userID == -1 {
+		query = "select * from `plants`"
+	} else {
+		query = "select * from `plants` where belongsTo = ?"
+	}
+	var stmt, err = db.Query(query, userID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+	var plnts PlantList
+	for stmt.Next() {
+		var plnt Plant
+		err = stmt.Scan(&plnt.PlantID, &plnt.PlantName, &plnt.PlantVariety, &plnt.BelongsTo, &plnt.LocationID, &plnt.PlantDate)
+		if err != nil {
+			logMessage("Core", "user lookup error")
+			log.Fatal(err)
+		}
+		plnt = getPlantData(plnt)
+		plnts.Plants = append(plnts.Plants, plnt)
+	}
+	err = stmt.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return plnts
+}
+
+func getLocation(lID int) (l Location) {
+	var stmt, err = db.Query("select * from `location` where locationID = ? ", lID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+	for stmt.Next() {
+		err = stmt.Scan(&l.LocationID, &l.LocationName, &l.BelongsTo)
+	}
+	err = stmt.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return
 }
 
 func getVariety(vID int) (v Variety) {
@@ -68,5 +156,23 @@ func getPlant(pID int) (p Plant) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	p = getPlantData(p)
 	return
+}
+
+func getPlantData(plant Plant) (p Plant) {
+	p = plant
+	vId, _ := strconv.Atoi(plant.PlantVariety)
+	var v Variety = getVariety(vId)
+	p.VarietyName = v.VarietyName
+	p.PlantCatagory = v.VarietyCatagory
+	p.VarietyFamily = v.VarietyFamily
+
+	var l Location = getLocation(plant.LocationID)
+	p.LocationName = l.LocationName
+	return
+}
+
+func createVariety(v Variety) {
+	db.Exec("INSERT INTO varieties (varietyName, varietyFamily, varietyCatagory, sunlightCatagory, waterCatagory, avgSproutTime, avgHarvestTime) VALUES (?,?,?,?,?,?,?);", v.VarietyName, v.VarietyFamily, v.VarietyCatagory, v.SunlightCatagory, v.WaterCatagory, v.AvgSprout, v.AvgHarvest)
 }
