@@ -15,6 +15,7 @@ type Session struct {
 	Token             string
 	ExpireTimeSeconds int
 	IsAdmin           bool
+	Redirect          string
 }
 
 type SessionList struct {

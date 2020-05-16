@@ -1,24 +1,30 @@
 {{define "plantProfile"}}
-    <div class="container">
-        <div class="row">
-            <div class="col-3">
-                <img src="https://dummyimage.com/200x200/000/ffffff&text=Plant+Image" class="rounded float-left" alt="...">
+    {{$extID := .ID}}
+    {{$main := .}}
+    {{range .Plants.Plants}}
+        {{if (eq $extID .PlantID)}}
+            <div class="container">
+                <div class="row">
+                    <div class="col-3">
+                        <img src="https://dummyimage.com/200x200/000/ffffff&text=Plant+Image" class="rounded float-left" alt="...">
+                    </div>
+                    <div class="col-9 profile">
+                        <h1>{{.PlantName}}</h1>
+                        {{.Variety.VarietyName}} {{.Variety.VarietyFamily}} <br /><br />
+                        <h6>Actions</h6>
+                        <a href=""><button type="button" class="btn btn-outline-primary">Mark As Watered</button></a>
+                        <button type="button" class="btn btn-outline-primary print-label">Print Label</button>
+                    </div>
+                </div>
             </div>
-            <div class="col-9 profile">
-                <h1>{{(index .Plants.Plants .ID).PlantName}}</h1>
-                {{(index .Plants.Plants .ID).VarietyName}} {{(index .Plants.Plants .ID).VarietyFamily}} <br /><br />
-                <h6>Actions</h6>
-                <a href=""><button type="button" class="btn btn-outline-primary">Mark As Watered</button></a>
-                <button type="button" class="btn btn-outline-primary print-label">Print Label</button>
-            </div>
-        </div>
-    </div>
-    <script>
-        $(document).ready(function(){
-            $(".print-label").click(function(){
-                console.log("http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/label/p/{{.ID}}");
-                $("body").append("<iframe src='http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/label/p/{{.ID}}' style='display:none;'></iframe>");
-            });
-        });
-    </script>
+            <script>
+                $(document).ready(function(){
+                    $(".print-label").click(function(){
+                        console.log("http://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/label/p/{{.PlantID}}");
+                        $("body").append("<iframe src='http://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/label/p/{{.PlantID}}' style='display:none;'></iframe>");
+                    });
+                });
+            </script>
+        {{end}}
+    {{end}}
 {{end}}

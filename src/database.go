@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"log"
-	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -17,16 +16,14 @@ type VarietyList struct {
 }
 
 type Plant struct {
-	PlantID       int
-	PlantName     string
-	PlantVariety  string
-	VarietyFamily string
-	PlantCatagory string
-	VarietyName   string
-	BelongsTo     int
-	LocationID    int
-	PlantDate     string
-	LocationName  string
+	PlantID      int
+	PlantName    string
+	VarietyID    int
+	Variety      Variety
+	BelongsTo    int
+	LocationID   int
+	PlantDate    string
+	LocationName string
 }
 
 type Variety struct {
@@ -96,7 +93,7 @@ func getAllPlants(userID int) PlantList {
 	var plnts PlantList
 	for stmt.Next() {
 		var plnt Plant
-		err = stmt.Scan(&plnt.PlantID, &plnt.PlantName, &plnt.PlantVariety, &plnt.BelongsTo, &plnt.LocationID, &plnt.PlantDate)
+		err = stmt.Scan(&plnt.PlantID, &plnt.PlantName, &plnt.VarietyID, &plnt.BelongsTo, &plnt.LocationID, &plnt.PlantDate)
 		if err != nil {
 			logMessage("Core", "user lookup error")
 			log.Fatal(err)
@@ -150,7 +147,7 @@ func getPlant(pID int) (p Plant) {
 	}
 	defer stmt.Close()
 	for stmt.Next() {
-		err = stmt.Scan(&p.PlantID, &p.PlantName, &p.PlantVariety, &p.BelongsTo, &p.LocationID, &p.PlantDate)
+		err = stmt.Scan(&p.PlantID, &p.PlantName, &p.VarietyID, &p.BelongsTo, &p.LocationID, &p.PlantDate)
 	}
 	err = stmt.Err()
 	if err != nil {
@@ -162,11 +159,13 @@ func getPlant(pID int) (p Plant) {
 
 func getPlantData(plant Plant) (p Plant) {
 	p = plant
-	vId, _ := strconv.Atoi(plant.PlantVariety)
-	var v Variety = getVariety(vId)
-	p.VarietyName = v.VarietyName
-	p.PlantCatagory = v.VarietyCatagory
-	p.VarietyFamily = v.VarietyFamily
+	if p.PlantName == "" {
+		p = getPlant(p.PlantID)
+	}
+	if p.Variety.VarietyName == "" {
+		var v Variety = getVariety(plant.VarietyID)
+		p.Variety = v
+	}
 
 	var l Location = getLocation(plant.LocationID)
 	p.LocationName = l.LocationName

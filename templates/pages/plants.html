@@ -14,8 +14,8 @@
               {{range .Plants.Plants}}
                 <tr>
                     <td>{{.PlantName}}</td>
-                    <td>{{.VarietyName}}</td>
-                    <td>{{.PlantCatagory}}</td>
+                    <td>{{.Variety.VarietyName}}</td>
+                    <td>{{.Variety.VarietyCatagory}}</td>
                     <td>{{.LocationName}}</td>
                     <td></td>
                     <td><a href="/home/plant/{{.PlantID}}">Manage</a></td>

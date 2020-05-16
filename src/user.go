@@ -55,6 +55,10 @@ func getUser(username string, password string) (usr User, found int) {
 			logMessage("Core", "user lookup error")
 			log.Fatal(err)
 		}
+		if usr.Hash == "change" {
+			found = 1
+			return
+		}
 		var er = bcrypt.CompareHashAndPassword([]byte(usr.Hash), []byte(password))
 		if er == nil {
 			found = 1
@@ -71,11 +75,6 @@ func getUser(username string, password string) (usr User, found int) {
 func loginUser(username string, password string) (u User, success bool) {
 	var user, err = getUser(username, password)
 	if err == 0 {
-		var _, er = db.Exec("update users set hash = ? where username = ?", string(hashAndSalt([]byte(password))), username)
-		if er != nil {
-			logMessage("Core", "user update err")
-			//log.Fatal(err)
-		}
 		success = false
 		return
 	} else {
@@ -118,7 +117,7 @@ func hashAndSalt(pwd []byte) string {
 func createUser(u User) (user User) {
 
 	t := time.Now()
-	db.Exec("INSERT INTO users (username, lastLogin, hash) VALUES (?, ?, 'noHash');", u.Username, t.String())
+	db.Exec("INSERT INTO users (username, lastLogin, hash) VALUES (?, ?, 'noHash');", u.Username, t.Format("1/2/06 03:04:05"))
 	users := getAllUsers()
 	for i := 0; i < len(users.Users); i++ {
 		if users.Users[i].Username == u.Username {

@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/boombuler/barcode/code128"
 )
@@ -29,17 +28,9 @@ type ViewState struct {
 	Session   Session
 }
 
-type LabelState struct {
-	PlantID            int
-	PlantName          string
-	PlantVariety       string
-	PlantVarietyFamily string
-	PlantCatagory      string
-	SunlightCatagory   string
-	WaterCatagory      string
-	AvgSprout          string
-	AvgHarvest         string
-	PlantDate          string
+type GetParam struct {
+	Key   string
+	Value string
 }
 
 func startWebserver() {
@@ -87,48 +78,41 @@ func passChange(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/admin/passwordChange/"):]
 	var state ViewState
 	state.Users = getAllUsers()
-	state.ID, _ = strconv.Atoi(id)
+	state.ID, _ = strconv.Atoi(strings.Split(id, "?")[0])
 	state.Config = config
 
-	restrictPage(w, r, true, true)
+	session := restrictPage(w, r, true, true)
 
+	if len(r.URL.Path[len("/admin/passwordChange/"):]) > 3 {
+		var redir GetParam
+		redir.Key = strings.Split(strings.Split(id, "?")[1], "=")[0]
+		redir.Value = strings.Split(strings.Split(id, "?")[1], "=")[1]
+		if redir.Key == "r" {
+			session.Redirect = redir.Value
+		}
+	}
 	w.WriteHeader(200)
 	t.ExecuteTemplate(w, "passwordChange.html", state)
 }
 
 func genLabel(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/label/p/"):]
-	intID, _ := strconv.Atoi(id)
-	intID++
-	var plant = getPlant(intID)
-	if plant.PlantID != 0 {
-		intVID, _ := strconv.Atoi(plant.PlantVariety)
-		var variety = getVariety(intVID)
-		var state LabelState
-		state.PlantID = plant.PlantID
-		state.PlantName = plant.PlantName
-		state.PlantVariety = variety.VarietyName
-		state.PlantVarietyFamily = variety.VarietyFamily
-		state.PlantCatagory = variety.VarietyCatagory
-		state.SunlightCatagory = variety.SunlightCatagory
-		state.WaterCatagory = variety.WaterCatagory
-		const longForm = "1/02/06Z03:04:05"
-		pDate, _ := time.Parse(longForm, plant.PlantDate)
-
-		sDate := pDate.Add(time.Duration(variety.AvgSprout) * time.Hour * 24)
-		state.AvgSprout = strings.Split(sDate.Format("01/02/06"), "Z")[0]
-
-		hDate := pDate.Add(time.Duration(variety.AvgHarvest) * time.Hour * 24)
-		state.AvgHarvest = strings.Split(hDate.Format("01/02/06"), "Z")[0]
-
-		s := strings.Split(plant.PlantDate, "Z")
-		state.PlantDate = s[0]
-		w.WriteHeader(200)
-		w.Header().Set("Content-Type", "text/html") // <-- set the content-type header
-		t.ExecuteTemplate(w, config.Hardware.LabelMaker.LabelSize+".html", state)
-	} else {
-		w.WriteHeader(404)
+	var list PlantList
+	strList := strings.Split(id, "/")
+	for i := 0; i < len(strList); i++ {
+		var p Plant
+		p.PlantID, _ = strconv.Atoi(strList[i])
+		p = getPlantData(p)
+		list.Plants = append(list.Plants, p)
 	}
+
+	var state ViewState
+	state.Plants = list
+	state.Config = config
+
+	w.WriteHeader(200)
+	w.Header().Set("Content-Type", "text/html") // <-- set the content-type header
+	t.ExecuteTemplate(w, config.Hardware.LabelMaker.LabelSize+".html", state)
 }
 
 func genBarcode(w http.ResponseWriter, r *http.Request) {
@@ -193,7 +177,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 			}
 			state.Session = session
 			state.Config = config
-			state.ID, _ = strconv.Atoi(title[0:len("plant/")])
+			state.ID, _ = strconv.Atoi(title[len("plant/"):])
 			w.WriteHeader(200)
 			t.ExecuteTemplate(w, "root.html", state)
 		} else if len(title) >= len("varieties/new") && title[0:len("varieties/new")] == "varieties/new" {
@@ -255,6 +239,11 @@ func doLogin(w http.ResponseWriter, r *http.Request) {
 
 	var userObj, loginState = loginUser(user, pass)
 
+	if userObj.Hash == "change" {
+		registerSessionWithClient(w, userObj.UserID)
+		http.Redirect(w, r, "http://"+config.Webserver.Hostname+":"+config.Webserver.Port+"/admin/passwordChange/"+strconv.Itoa(userObj.UserID)+"?r=/home/firstRun", 302)
+	}
+
 	if loginState {
 		logMessage("Core", "User "+user+" logged in successfully")
 		registerSessionWithClient(w, userObj.UserID)
@@ -276,6 +265,7 @@ func doLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func doPasswordChange(w http.ResponseWriter, r *http.Request) {
+	session := restrictPage(w, r, true, true)
 	err := r.ParseForm()
 	if err != nil {
 		panic(err)
@@ -287,7 +277,11 @@ func doPasswordChange(w http.ResponseWriter, r *http.Request) {
 
 	changeUserPass(uID, password)
 	logMessage("Core", "Changed "+username+"'s password")
-	http.Redirect(w, r, "../../../home/user/"+userID, 302)
+	if isRedirectPending(session) {
+		doRedirect(w, r, session)
+	} else {
+		http.Redirect(w, r, "../../../home/user/"+userID, 302)
+	}
 }
 
 func doCreateVariety(w http.ResponseWriter, r *http.Request) {
@@ -325,4 +319,14 @@ func doDeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(title)
 	deleteUser(userID)
 	http.Redirect(w, r, "http://"+config.Webserver.Hostname+":"+config.Webserver.Port+"/home/users/", 302)
+}
+
+func doRedirect(w http.ResponseWriter, r *http.Request, s Session) {
+	redir := s.Redirect
+	s.Redirect = ""
+	http.Redirect(w, r, "http://"+config.Webserver.Hostname+":"+config.Webserver.Port+redir, 302)
+}
+
+func isRedirectPending(s Session) bool {
+	return s.Redirect != ""
 }
