@@ -4,7 +4,7 @@
         "hostname": "localhost"
     },
     "apis":{
-        "trefleAPIKey":"REGISTERFORAKEY"
+        "trefleAPIKey":""
     },
     "sessions": {
         "sessionExpiry": "3"
@@ -15,7 +15,7 @@
     "hardware": {
         "labelMaker": {
             "Manufacturer": "Dymo",
-            "LabelSize": "30365NameBadge"
+            "LabelSize": "30252Address"
         }
     }
 }
