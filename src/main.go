@@ -3,36 +3,39 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
+	"sync"
 )
 
 type Config struct {
 	Webserver struct {
-		Port string `json:"port"`
+		Port     string `json:"port"`
+		Hostname string `json:"hostname"`
 	} `json:"webserver"`
 	Branding struct {
 		Title string `json:"title"`
 	} `json:"branding"`
+	Hardware struct {
+		LabelMaker struct {
+			Manufacturer string `json:"Manufacturer"`
+			LabelSize    string `json:"LabelSize"`
+		} `json:"labelMaker"`
+	} `json:"hardware"`
 }
 
 var config Config
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	body, _ := ioutil.ReadFile("templates/login.html")
-	fmt.Fprint(w, string(body))
-}
-
 func main() {
 	logMessage("Core", "Starting Plant Tracker")
-	config = LoadConfiguration("config.json")
+	config = LoadConfiguration("./config.json")
 
-	logMessage("Core", "Started Webserver on port "+config.Webserver.Port)
+	initDB()
 
-	http.HandleFunc("/login", handler)
-	log.Fatal(http.ListenAndServe(":"+config.Webserver.Port, nil))
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go startWebserver()
+	wg.Wait()
 }
 
 func LoadConfiguration(file string) Config {

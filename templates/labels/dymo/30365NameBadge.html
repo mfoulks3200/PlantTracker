@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+
+            body{
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            }
+
+            .barcode{
+                position: fixed;
+                top: 70px;
+                left: 175px;
+            }
+
+            .container{
+                transform: rotate(90deg);
+                width: 335px;
+                height: 223px;
+                position: fixed;
+                top: 55px;
+                left: -58px;
+            }
+
+            .plantName{
+                position: fixed;
+                top: 80px;
+                left: 175px;
+                font-weight: bold;
+                width: 100px;
+                text-align: center;
+                font-size: 11pt;
+            }
+
+            .plantInfo{
+                position: fixed;
+                top: 100px;
+                left: 175px;
+                /* font-weight: bold; */
+                width: 100px;
+                text-align: center;
+                font-size: 8pt;
+            }
+
+            .dateInfo{
+                transform: rotate(90deg);
+                position: fixed;
+                top: 55px;
+                left: 90px;
+                width: 80px;
+                text-align: center;
+                font-size: 7pt;
+            }
+
+            .sunIcon{
+                transform: rotate(90deg);
+                position: fixed;
+                top: 67px;
+                left: 285px;
+                font-size: 25pt;
+                font-weight: bold;
+                width: 50px;
+                text-align: center;
+            }
+
+            .sunDesc{
+                transform: rotate(90deg);
+                position: fixed;
+                top: 82px;
+                left: 262px;
+                font-size: 9pt;
+                width: 50px;
+                text-align: center;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="outline"></div>
+        <div class="container">
+            <img src="../../barcode/pid{{.PlantID}}" class="barcode" width="100px" height="10px" />
+            <div class="plantName">{{.PlantName}}</div>
+            <div class="plantInfo">{{.PlantVariety}} {{.PlantVarietyFamily}}</div>
+            <div class="dateInfo"><b>Planted</b><br />{{.PlantDate}}<br /><b>Sprout</b><br />{{.AvgSprout}}<br /><b>Harvest</b><br />{{.AvgHarvest}}<br /></div>
+            <div class="sunIcon">
+                {{if (eq .SunlightCatagory "Full")}}
+                    F
+                {{else if (eq .SunlightCatagory "Half")}}
+                    H
+                {{else if (eq .SunlightCatagory "Shaded")}}
+                    S
+                {{end}}
+            </div>
+            <div class="sunDesc">{{.SunlightCatagory}}</div>
+        </div>
+        {{template "labelInclude"}}
+    </body>
+</html>

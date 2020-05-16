@@ -1,8 +1,15 @@
 {
     "webserver": {
-        "port": "8080"
+        "port": "88",
+        "hostname": "localhost"
     },
     "branding": {
         "title": "Plant Tracker"
+    },
+    "hardware": {
+        "labelMaker": {
+            "Manufacturer": "Dymo",
+            "LabelSize": "30365NameBadge"
+        }
     }
 }

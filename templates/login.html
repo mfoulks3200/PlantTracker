@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Rental Application</title>
+    <title>Login</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
 
@@ -94,9 +94,9 @@
 
 <body>
     <div class="container">
-        <form class="form-signin" method="POST" action="login.php">
+        <form class="form-signin" method="POST" action="doLoginAction">
             <h2 class="form-signin-heading display-4 title anim" style="text-align:center;">PlantTracker<span class="lead beta anim" style="position:absolute;">Beta</span></h2>
-            <input type="email" id="inputEmail" class="form-control input anim" name="email" placeholder="Email Address" required autofocus>
+            <input type="text" id="inputEmail" class="form-control input anim" name="username" placeholder="Username" required autofocus>
             <input type="password" id="inputPassword" class="form-control input anim" name="password" placeholder="Password" required>
 
 
@@ -115,6 +115,28 @@
         $("button").click(function(){
             $("body").fadeOut();
         });
+
+        $(document).ready(function(){
+            if(getUrlParameter('e') == "1"){
+                $(".anim").removeClass("anim");
+                $(".container").addClass("shake");
+            }
+        });
+
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                }
+            }
+        };
 
     </script>
 
