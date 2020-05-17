@@ -6,6 +6,9 @@ A feature rich platform for managing, and collecting data about your garden.
 - User Management System
     - Plant Ownership
     - Permissions
+    - Automatic Label Creation
+        - Label Template Creator
+        - Webcam & Mobile Webapp Camera Scanning
 - Trefle Integration (Botanical Database)
 - Statistics
 - Reports
