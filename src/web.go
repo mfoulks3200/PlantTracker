@@ -6,8 +6,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -24,8 +22,10 @@ type ViewState struct {
 	Plants    PlantList
 	Varieties VarietyList
 	PageTitle string
-	Page      string
+	PageName  string
+	Page      Page
 	ID        int
+	Objects   []Object
 	Session   Session
 }
 
@@ -37,23 +37,11 @@ type GetParam struct {
 func startWebserver() {
 	logMessage("Core", "Started Webserver on port "+config.Webserver.Port)
 
-	t = template.New("template")
-
-	filepath.Walk("./templates", func(path string, info os.FileInfo, err error) error {
-		if strings.HasSuffix(path, ".html") {
-			logMessage("Core", "Added template: "+path)
-			var _, er = t.ParseFiles(path)
-			if er != nil {
-				log.Fatal(er)
-			}
-		}
-
-		return nil
-	})
+	t = loadPages()
 
 	http.HandleFunc("/login", loginPage)
 	http.HandleFunc("/doLoginAction", doLogin)
-	http.HandleFunc("/home/", homePage)
+	http.HandleFunc("/home/", renderPage)
 	http.HandleFunc("/home/varieties/createVariety", doCreateVariety)
 	http.HandleFunc("/home/users/createUser", doCreateUser)
 	http.HandleFunc("/barcode/", genBarcode)
@@ -93,7 +81,7 @@ func passChange(w http.ResponseWriter, r *http.Request) {
 	state.ID, _ = strconv.Atoi(strings.Split(id, "?")[0])
 	state.Config = config
 
-	session := restrictPage(w, r, true, true)
+	session, _ := restrictPage(w, r, true, true)
 
 	if len(r.URL.Path[len("/admin/passwordChange/"):]) > 3 {
 		var redir GetParam
@@ -140,112 +128,6 @@ func genBarcode(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func homePage(w http.ResponseWriter, r *http.Request) {
-	session := restrictPage(w, r, true, false)
-	title := r.URL.Path[len("/home/"):]
-	var state ViewState
-	if len(title) != 0 {
-		if len(title) >= len("users/new") && title[0:len("users/new")] == "users/new" {
-			state.Users = getAllUsers()
-			state.PageTitle = "New User"
-			state.Page = "newUser"
-			state.Session = session
-			state.Config = config
-			state.ID = 0
-			w.WriteHeader(200)
-			t.ExecuteTemplate(w, "root.html", state)
-		} else if len(title) >= len("users") && title[0:len("users")] == "users" {
-			state.Users = getAllUsers()
-			state.PageTitle = "Users"
-			state.Page = "users"
-			state.Session = session
-			state.Config = config
-			state.ID = 0
-			w.WriteHeader(200)
-			t.ExecuteTemplate(w, "root.html", state)
-		} else if len(title) >= len("user/") && title[0:len("user/")] == "user/" {
-			state.Users = getAllUsers()
-			state.PageTitle = "Users"
-			state.Page = "user"
-			state.Session = session
-			state.Config = config
-			state.ID, _ = strconv.Atoi(title[len("user/"):])
-			w.WriteHeader(200)
-			t.ExecuteTemplate(w, "root.html", state)
-		} else if title[0:6] == "plants" {
-			state.PageTitle = "Plants"
-			state.Page = "plants"
-			if session.IsAdmin {
-				state.Plants = getAllPlants(-1)
-			} else {
-				state.Plants = getAllPlants(session.UserID)
-			}
-			state.Session = session
-			state.Config = config
-			state.ID = 0
-			w.WriteHeader(200)
-			t.ExecuteTemplate(w, "root.html", state)
-		} else if title[0:len("plant/")] == "plant/" {
-			state.PageTitle = "Plant"
-			state.Page = "plant"
-			if session.IsAdmin {
-				state.Plants = getAllPlants(-1)
-			} else {
-				state.Plants = getAllPlants(session.UserID)
-			}
-			state.Session = session
-			state.Config = config
-			state.ID, _ = strconv.Atoi(title[len("plant/"):])
-			w.WriteHeader(200)
-			t.ExecuteTemplate(w, "root.html", state)
-		} else if len(title) >= len("varieties/new") && title[0:len("varieties/new")] == "varieties/new" {
-			state.PageTitle = "New Variety"
-			state.Page = "newVariety"
-			if session.IsAdmin {
-				state.Plants = getAllPlants(-1)
-			} else {
-				state.Plants = getAllPlants(session.UserID)
-			}
-			state.Session = session
-			state.Config = config
-			state.ID = 0
-			w.WriteHeader(200)
-			t.ExecuteTemplate(w, "root.html", state)
-		} else if len(title) >= len("varieties/trefle") && title[0:len("varieties/trefle")] == "varieties/trefle" {
-			state.PageTitle = "New Trefle Variety"
-			state.Page = "newVarietyTrefle"
-			if session.IsAdmin {
-				state.Plants = getAllPlants(-1)
-			} else {
-				state.Plants = getAllPlants(session.UserID)
-			}
-			state.Session = session
-			state.Config = config
-			state.ID = 0
-			w.WriteHeader(200)
-			t.ExecuteTemplate(w, "root.html", state)
-		} else if title[0:len("varieties")] == "varieties" {
-			state.PageTitle = "Varieties"
-			state.Page = "varieties"
-			state.Varieties = getAllVarieties()
-			state.Session = session
-			state.Config = config
-			state.ID = 0
-			w.WriteHeader(200)
-			t.ExecuteTemplate(w, "root.html", state)
-		}
-	} else {
-		state.PageTitle = "Dashboard"
-		state.Page = "dashboard"
-		state.Session = session
-		state.Config = config
-		state.ID = 0
-		w.WriteHeader(200)
-		t.ExecuteTemplate(w, "root.html", state)
-	}
-
-}
-
 func doLogin(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -283,7 +165,7 @@ func doLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func doPasswordChange(w http.ResponseWriter, r *http.Request) {
-	session := restrictPage(w, r, true, true)
+	session, _ := restrictPage(w, r, true, true)
 	err := r.ParseForm()
 	if err != nil {
 		panic(err)

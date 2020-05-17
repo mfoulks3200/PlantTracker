@@ -1,27 +1,36 @@
-{{define "varieties"}}
-        <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">Variety Name</th>
-                <th scope="col">Variety Family</th>
-                <th scope="col">Catagory</th>
-                <th scope="col">Ideal Sunlight</th>
-                <th scope="col">Ideal Water</th>
-                <th scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{range .Varieties.Varieties}}
-                <tr>
-                    <td>{{.VarietyName}}</td>
-                    <td>{{.VarietyFamily}}</td>
-                    <td>{{.VarietyCatagory}}</td>
-                    <td>{{.SunlightCatagory}}</td>
-                    <td>{{.WaterCatagory}}</td>
-                    <td></td>
-                    <td><a href="/home/varieties/{{.VarietyName}}">Manage</a></td>
-                </tr>
-              {{end}}
-            </tbody>
-          </table>
-  {{end}}
+PageTitle: Varieties,
+PageName: varieties,
+ObjectName: varieties,
+ObjectIcon: git-branch,
+URLPattern: varieties,
+RequireLoggedIn: true,
+RequireAdmin: false,
+PullPlants: false,
+PullUsers: false,
+PullVarieties: true
+{{safe "<!--ENDPAGEFLAGS!-->"}}
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Variety Name</th>
+        <th scope="col">Variety Family</th>
+        <th scope="col">Catagory</th>
+        <th scope="col">Ideal Sunlight</th>
+        <th scope="col">Ideal Water</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Varieties.Varieties}}
+        <tr>
+            <td>{{.VarietyName}}</td>
+            <td>{{.VarietyFamily}}</td>
+            <td>{{.VarietyCatagory}}</td>
+            <td>{{.SunlightCatagory}}</td>
+            <td>{{.WaterCatagory}}</td>
+            <td></td>
+            <td><a href="/home/varieties/{{.VarietyName}}">Manage</a></td>
+        </tr>
+      {{end}}
+    </tbody>
+  </table>

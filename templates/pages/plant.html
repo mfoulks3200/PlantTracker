@@ -1,37 +1,45 @@
-{{define "plantProfile"}}
-    {{$extID := .ID}}
-    {{$main := .}}
-    {{range .Plants.Plants}}
-        {{if (eq $extID .PlantID)}}
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-3 col-12">
-                        <img src="https://dummyimage.com/200x200/000/ffffff&text=Plant+Image" class="rounded float-left" alt="...">
-                    </div>
-                    <div class="col-md-9 col-12 profile">
-                        <h1>{{.PlantName}}</h1>
-                        {{.Variety.VarietyName}} {{.Variety.VarietyFamily}} <br /><br />
-                        <h6>Actions</h6>
-                        <div class="btn-group" role="group" aria-label="Actions">
-                            <button type="button" class="btn btn-outline-primary">Mark As Watered</button>
-                            <button type="button" class="btn btn-outline-primary print-label">ID Label</button>
-                            <button type="button" class="btn btn-outline-primary">Scan2Water Label</button>
-                            <button type="button" class="btn btn-outline-primary">Jump To Group</button>
-                        </div>
+PageTitle: Plant Profile,
+PageName: plant,
+ObjectName: plants,
+URLPattern: plant,
+RequireLoggedIn: true,
+RequireAdmin: false,
+PullPlants: true,
+PullUsers: false,
+PullVarieties: false
+{{safe "<!--ENDPAGEFLAGS!-->"}}
+{{$extID := .ID}}
+{{$main := .}}
+{{range .Plants.Plants}}
+    {{if (eq $extID .PlantID)}}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-12">
+                    <img src="https://dummyimage.com/200x200/000/ffffff&text=Plant+Image" class="rounded float-left" alt="...">
+                </div>
+                <div class="col-md-9 col-12 profile">
+                    <h1>{{.PlantName}}</h1>
+                    {{.Variety.VarietyName}} {{.Variety.VarietyFamily}} <br /><br />
+                    <h6>Actions</h6>
+                    <div class="btn-group" role="group" aria-label="Actions">
+                        <button type="button" class="btn btn-outline-primary">Mark As Watered</button>
+                        <button type="button" class="btn btn-outline-primary print-label">ID Label</button>
+                        <button type="button" class="btn btn-outline-primary">Scan2Water Label</button>
+                        <button type="button" class="btn btn-outline-primary">Jump To Group</button>
                     </div>
                 </div>
             </div>
-            <script>
-                $(document).ready(function(){
-                    if($(document).width()<700){
-                        $(".btn-group").removeClass("btn-group").addClass("btn-group-vertical btn-block");
-                    }
-                    $(".print-label").click(function(){
-                        console.log("http://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/label/p/{{.PlantID}}");
-                        $("body").append("<iframe src='https://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/label/p/{{.PlantID}}' style='display:none;'></iframe>");
-                    });
+        </div>
+        <script>
+            $(document).ready(function(){
+                if($(document).width()<700){
+                    $(".btn-group").removeClass("btn-group").addClass("btn-group-vertical btn-block");
+                }
+                $(".print-label").click(function(){
+                    console.log("http://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/label/p/{{.PlantID}}");
+                    $("body").append("<iframe src='https://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/label/p/{{.PlantID}}' style='display:none;'></iframe>");
                 });
-            </script>
-        {{end}}
+            });
+        </script>
     {{end}}
 {{end}}

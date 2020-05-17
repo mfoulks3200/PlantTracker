@@ -1,75 +1,84 @@
-{{define "newVariety"}}
-    <form style="text-transform: capitalize;" method="POST" action="createVariety">
-        <div class="form-group">
-            <label for="varietyName">Variety Name</label>
-            <input type="text" class="form-control" id="varietyName" name="name" placeholder="Beefsteak Tomatoes">
+PageTitle: New Variety,
+PageName: variety,
+ObjectName: varieties,
+ObjectIcon: git-branch,
+URLPattern: newVariety,
+RequireLoggedIn: true,
+RequireAdmin: false,
+PullPlants: false,
+PullUsers: false,
+PullVarieties: true
+{{safe "<!--ENDPAGEFLAGS!-->"}}
+<form style="text-transform: capitalize;" method="POST" action="createVariety">
+    <div class="form-group">
+        <label for="varietyName">Variety Name</label>
+        <input type="text" class="form-control" id="varietyName" name="name" placeholder="Beefsteak Tomatoes">
+    </div>
+    <div class="form-group">
+            <label for="varietyFamily">Variety Family</label>
+            <input type="text" class="form-control" id="varietyFamily" name="family" placeholder="Tomatoes">
         </div>
-        <div class="form-group">
-                <label for="varietyFamily">Variety Family</label>
-                <input type="text" class="form-control" id="varietyFamily" name="family" placeholder="Tomatoes">
-            </div>
-        <div class="form-group">
-            <label for="catagory">Catagory</label>
-            <select class="form-control" id="catagory" name="catagory">
-            <option>Fruit</option>
-            <option>Vegitable</option>
-            <option>Herb</option>
-            <option>Flower</option>
-            <option>Shrub</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="sun">Ideal Sunlight</label>
-            <select class="form-control" name="sun" id="sun">
-            <option>Full</option>
-            <option>Half</option>
-            <option>Shaded</option>
-            <option>Indoor</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="water">Ideal Water</label>
-            <select class="form-control" name="water" id="water">
-            <option>Heavy</option>
-            <option>Moderate</option>
-            <option>Light</option>
-            <option>Very Light</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="avgSprout">Average Sprout Time</label>
-            <input type="number" class="form-control" id="avgSprout" name="sprout" placeholder="5">
-        </div>
-        <div class="form-group">
-            <label for="avgHarvest">Average Harvest Time</label>
-            <input type="number" class="form-control" id="avgHarvest" name="harvest" placeholder="90">
-        </div>
-        <button type="submit" class="btn btn-outline-primary">Create</button>
-    </form>
-    <script>
-        $(document).ready(function(){
-            if(!($.urlParam('name') === undefined)){
-                $("#varietyName").val(decodeURIComponent($.urlParam('name')));
-            }
-            if(!($.urlParam('family') === undefined)){
-                $("#varietyFamily").val(decodeURIComponent($.urlParam('family')));
-            }
-            if(!($.urlParam('sun') === undefined)){
-                if($.urlParam('sun') == "full"){
-                    $('#sun option[value="full"]').prop('selected', true)
-                }
-            }
-            if(!($.urlParam('water') === undefined)){
-                if($.urlParam('water') == "low"){
-                    $('#sun option[value="Light"]').prop('selected', true)
-                }
-            }
-            
-        });
-
-        $.urlParam = function(name){
-            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-            return results[1] || 0;
+    <div class="form-group">
+        <label for="catagory">Catagory</label>
+        <select class="form-control" id="catagory" name="catagory">
+        <option>Fruit</option>
+        <option>Vegitable</option>
+        <option>Herb</option>
+        <option>Flower</option>
+        <option>Shrub</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="sun">Ideal Sunlight</label>
+        <select class="form-control" name="sun" id="sun">
+        <option>Full</option>
+        <option>Half</option>
+        <option>Shaded</option>
+        <option>Indoor</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="water">Ideal Water</label>
+        <select class="form-control" name="water" id="water">
+        <option>Heavy</option>
+        <option>Moderate</option>
+        <option>Light</option>
+        <option>Very Light</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="avgSprout">Average Sprout Time</label>
+        <input type="number" class="form-control" id="avgSprout" name="sprout" placeholder="5">
+    </div>
+    <div class="form-group">
+        <label for="avgHarvest">Average Harvest Time</label>
+        <input type="number" class="form-control" id="avgHarvest" name="harvest" placeholder="90">
+    </div>
+    <button type="submit" class="btn btn-outline-primary">Create</button>
+</form>
+<script>
+    $(document).ready(function(){
+        if(!($.urlParam('name') === undefined)){
+            $("#varietyName").val(decodeURIComponent($.urlParam('name')));
         }
-    </script>
-{{end}}
+        if(!($.urlParam('family') === undefined)){
+            $("#varietyFamily").val(decodeURIComponent($.urlParam('family')));
+        }
+        if(!($.urlParam('sun') === undefined)){
+            if($.urlParam('sun') == "full"){
+                $('#sun option[value="full"]').prop('selected', true)
+            }
+        }
+        if(!($.urlParam('water') === undefined)){
+            if($.urlParam('water') == "low"){
+                $('#sun option[value="Light"]').prop('selected', true)
+            }
+        }
+        
+    });
+
+    $.urlParam = function(name){
+        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+        return results[1] || 0;
+    }
+</script>

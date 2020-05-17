@@ -83,12 +83,17 @@ func checkLogin(w http.ResponseWriter, r *http.Request) (session Session, valid 
 	return
 }
 
-func restrictPage(w http.ResponseWriter, r *http.Request, requireLoggedIn bool, requireAdmin bool) (session Session) {
-	session, valid := checkLogin(w, r)
+func restrictPage(w http.ResponseWriter, r *http.Request, requireLoggedIn bool, requireAdmin bool) (session Session, v bool) {
+	s, valid := checkLogin(w, r)
+	session = s
+	v = true
 	if !valid && requireLoggedIn {
+		v = false
 		http.Redirect(w, r, "https://"+config.Webserver.Hostname+":"+config.Webserver.Port+"/login?e=2&r="+url.QueryEscape(r.URL.Path), 302)
+		return
 	} else if !session.IsAdmin && requireAdmin {
 		http.Redirect(w, r, "https://"+config.Webserver.Hostname+":"+config.Webserver.Port+"/home/permissions", 302)
+		return
 	}
 	return
 }
