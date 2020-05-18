@@ -1,5 +1,7 @@
 package main
 
+import "strconv"
+
 type AppInfo struct {
 	AppVersion  string
 	AppBuildNum int
@@ -19,5 +21,5 @@ type LibraryCredits struct {
 var globalAppInfo AppInfo
 
 func printAppInfo() {
-	logMessage("Core", "Starting Plant Tracker version "+globalAppInfo.AppVersion+" build "+globalAppInfo.AppBuildNum+" (commit "+globalAppInfo.AppCommit+")")
+	logMessage("Core", "Starting Plant Tracker version "+globalAppInfo.AppVersion+" build "+strconv.Itoa(globalAppInfo.AppBuildNum)+" (commit "+globalAppInfo.AppCommit+")")
 }
