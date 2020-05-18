@@ -8,6 +8,15 @@ import (
 	"sync"
 )
 
+var (
+	AppVersion  string
+	AppBuildNum string
+	AppCommit   string
+	BuildDate   string
+	BuildType   string
+	Credits     []LibraryCredits
+)
+
 type Config struct {
 	Webserver struct {
 		Port     string `json:"port"`
