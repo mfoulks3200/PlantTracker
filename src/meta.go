@@ -20,6 +20,7 @@ type LibraryCredits struct {
 
 var globalAppInfo AppInfo
 
-func printAppInfo() {
+func initAppInfo() {
+	globalAppInfo.AppVersion = "0.0.1"
 	logMessage("Core", "Starting Plant Tracker version "+globalAppInfo.AppVersion+" build "+strconv.Itoa(globalAppInfo.AppBuildNum)+" (commit "+globalAppInfo.AppCommit+")")
 }

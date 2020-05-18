@@ -34,7 +34,7 @@ type Config struct {
 var config Config
 
 func main() {
-	printAppInfo()
+	initAppInfo()
 	config = LoadConfiguration("./config.json")
 
 	initDB()
