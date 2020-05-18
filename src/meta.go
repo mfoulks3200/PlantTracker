@@ -22,5 +22,5 @@ var globalAppInfo AppInfo
 
 func initAppInfo() {
 	globalAppInfo.AppVersion = "0.0.1"
-	logMessage("Core", "Starting Plant Tracker version "+globalAppInfo.AppVersion+" build "+strconv.Itoa(globalAppInfo.AppBuildNum)+" (commit "+globalAppInfo.AppCommit+")")
+	logMessage("Core", "Starting Plant Tracker version "+globalAppInfo.AppVersion+" build "+strconv.Itoa(globalAppInfo.AppBuildNum)+" (commit "+globalAppInfo.AppCommit+" "+globalAppInfo.BuildDate+")")
 }
