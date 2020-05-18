@@ -91,10 +91,10 @@ func renderPage(w http.ResponseWriter, r *http.Request) {
 			state.Objects = SystemObjects
 			if SystemPages[i].Flags.PullPlants {
 				if state.Session.IsAdmin {
-					logMessage("core", "Pulled Global Plant List From DB")
+					logMessage("DB", "Pulled global plant list")
 					state.Plants = getAllPlants(-1)
 				} else {
-					logMessage("core", "Pulled Plant List From DB")
+					logMessage("DB", "Pulled plant list for user "+state.Session.Username)
 					state.Plants = getAllPlants(state.Session.UserID)
 				}
 			}
@@ -127,15 +127,15 @@ func loadPages() (t *template.Template) {
 		"safe": func(s string) template.HTML { return template.HTML(s) },
 	}), nil)
 
+	logMessage("Templates", "Loading avalible templates")
 	filepath.Walk("./templates", func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".html") {
-			logMessage("Core", "Added template: "+path)
+			logMessage("Templates", "Added template: "+path)
 			var _, er = t.ParseFiles(path)
 			if er != nil {
 				log.Fatal(er)
 			}
 			if len(path) > len("templates/pages/.html") && path[len("templates/"):len("templates/pages")] == "pages" {
-				logMessage("core", "detected page: "+path[len("templates/pages/"):len(path)-+len(".html")])
 
 				pageName := path[len("templates/pages/") : len(path)-+len(".html")]
 

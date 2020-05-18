@@ -38,7 +38,8 @@ func createSession(userID int) (session Session) {
 	session.ExpireTimeSeconds, _ = strconv.Atoi(config.Sessions.Expiry)
 	session.IsAdmin = true
 	ActiveSessions.Sessions = append(ActiveSessions.Sessions, session)
-	logMessage("core", "Started a session: "+sessionToken)
+	username, _ := getSession(sessionToken)
+	logMessage("Sessions", "Started session "+sessionToken+" for "+username.Username)
 	return
 }
 
@@ -64,7 +65,6 @@ func registerSessionWithClient(w http.ResponseWriter, userID int) {
 		Expires: expire,
 	}
 	http.SetCookie(w, &cookie)
-	logMessage("core", "Created Session Cookie for Token "+session.Token+" to expire at "+expire.Format("1/2/06 3:4:5"))
 }
 
 func checkLogin(w http.ResponseWriter, r *http.Request) (session Session, valid bool) {

@@ -34,7 +34,7 @@ type Config struct {
 var config Config
 
 func main() {
-	logMessage("Core", "Starting Plant Tracker")
+	printAppInfo()
 	config = LoadConfiguration("./config.json")
 
 	initDB()
