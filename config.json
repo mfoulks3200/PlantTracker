@@ -1,7 +1,8 @@
 {
     "webserver": {
-        "port": "88",
-        "hostname": "192.168.0.43"
+        "port": "443",
+        "hostname": "192.168.0.43",
+        "ipAddr": "192.168.0.43"
     },
     "apis":{
         "trefleAPIKey":""

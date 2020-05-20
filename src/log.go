@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -25,4 +26,24 @@ func LogMessage(msg string) {
 	prefix += "[" + string(t.Format("1/2/6 3:4:5")) + "]"
 
 	log.Print(prefix + " " + msg)
+}
+
+func LogFatal(msg string) {
+	log.SetFlags(0)
+
+	pc, _, _, _ := runtime.Caller(1)
+	funcName := runtime.FuncForPC(pc).Name()
+	lastSlash := strings.LastIndexByte(funcName, '/')
+	if lastSlash < 0 {
+		lastSlash = 0
+	}
+	lastDot := strings.LastIndexByte(funcName[lastSlash:], '.') + lastSlash
+
+	prefix := "[" + FormatTitle(funcName[lastDot+1:]) + "][" + FormatTitle(funcName[lastDot+1:]) + "]"
+
+	t := time.Now()
+	prefix += "[" + string(t.Format("1/2/6 3:4:5")) + "]"
+
+	log.Print(prefix + " " + msg)
+	os.Exit(1)
 }

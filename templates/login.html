@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>Login</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+
+    <!--JQuery!-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <style>
+
+        .container {
+            max-width: 400px;
+            margin-top: 15%;
+        }
+
+        input {
+            margin-top: 20px;
+        }
+
+        .input.anim{
+            animation: inputsIn 3s ease 1;
+            opacity:1;
+        }
+
+        .title{
+            text-align: center;
+            position: relative;
+        }
+
+        .title.anim{
+            animation: titleUp 3s ease 1;
+        }
+
+        .beta.anim{
+            animation: beta 3s ease 1;
+        }
+
+        @keyframes titleUp {
+            0% {padding-top: 120px;opacity:0;}
+            25% {padding-top: 120px;opacity:1;}
+            50% {padding-top: 120px;opacity:1;}
+            100% {padding-top: 0px;opacity:1;}
+        }
+
+        @keyframes beta {
+            0% {opacity:0;}
+            25% {opacity:0;}
+            35% {opacity:1;}
+            100% {opacity:1;}
+        }
+
+        @keyframes inputsIn {
+            0% {opacity:0;}
+            80% {opacity:0;}
+            100% {opacity:1;}
+        }
+
+        .shake{
+            animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+
+        @keyframes shake {
+            10%, 90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+            
+            20%, 80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%, 50%, 70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%, 60% {
+                transform: translate3d(4px, 0, 0);
+            }
+            }
+
+            .toast-container{
+                position: fixed;
+                top: 0;
+                right: 0;
+                height: 500px;
+                width: 500px;
+            }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <form class="form-signin" method="POST" action="doLoginAction">
+            <h2 class="form-signin-heading display-4 title anim" style="text-align:center;">PlantTracker<span class="lead beta anim" style="position:absolute;">Beta</span></h2>
+            <input type="text" id="inputEmail" class="form-control input anim" name="username" placeholder="Username" required autofocus>
+            <input type="password" id="inputPassword" class="form-control input anim" name="password" placeholder="Password" required>
+
+
+            <input type="hidden" name="submit" value="true" class="input">
+            <input type="hidden" name="redirect" value="" class="input redir">
+            <div class="checkbox input anim">
+                <label>
+                <input type="checkbox" value="remember-me"> Remember me
+            </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block input anim" type="submit">Sign in</button>
+        </form>
+    </div>
+    <div aria-live="polite" aria-atomic="true" style="display:none;position: fixed;min-height: 200px;top: 15px;left: 15px;right: 15px;">
+        <div class="toast" data-autohide="false" style="position: absolute; top: 0; right: 0;">
+            <div class="toast-header">
+            <strong class="mr-auto">Login</strong>
+            <small>Just Now</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="toast-body">
+            Whoops, it seems like your session expired. Please login to continue where you left off.
+            </div>
+        </div>
+    </div>
+    <!-- /container -->
+    <script>
+
+        $("button").click(function(){
+            $("body").fadeOut();
+        });
+
+        $(document).ready(function(){
+            if(getUrlParameter('e') == "1"){
+                $(".anim").removeClass("anim");
+                $(".container").addClass("shake");
+            }
+            if(getUrlParameter('e') == "2"){
+                $(".anim").removeClass("anim");
+                setTimeout(function(){
+                    $(".toast").toast("show");
+                },500);
+            }
+            if(!(getUrlParameter('r') === undefined)){
+                $(".redir").val(getUrlParameter('r'));
+            }
+        });
+
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                }
+            }
+        };
+
+    </script>
+
+</body>
+
+</html>

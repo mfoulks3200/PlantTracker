@@ -1,0 +1,36 @@
+PageTitle: newPlant,
+PageName: newPlant,
+ObjectName: plant,
+URLPattern: plants/new,
+RequireLoggedIn: true,
+RequireAdmin: false,
+PullPlants: false,
+PullUsers: false,
+PullVarieties: true
+{{safe "<!--ENDPAGEFLAGS!-->"}}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">New Plant</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <!--<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+        <span data-feather="calendar"></span>
+        This week
+        </button>!-->
+    </div>
+</div>
+
+<form style="text-transform: capitalize;" method="POST" action="createPlant">
+    <div class="form-group">
+        <label for="plantName">Plant Name</label>
+        <input type="text" class="form-control" id="plantName" name="name" placeholder="Henry">
+    </div>
+    <div class="form-group">
+        <label for="variety">Variety</label>
+        <select class="form-control" id="variety" name="variety">
+            {{range .Varieties.Varieties}}
+                <option value="{{.VarietyID}}">{{.VarietyName}}</option>
+            {{end}}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-outline-primary">Create</button>
+</form>

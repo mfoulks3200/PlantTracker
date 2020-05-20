@@ -1,0 +1,19 @@
+{{define "sidebar"}}
+    {{$main:=.}}
+    {{range .Objects}}
+    <li class="nav-item">
+        {{if (eq $main.PageName .Name)}}
+            <a class="nav-link active" href="https://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/home/{{.Name}}">
+        {{else}}
+            <a class="nav-link" href="https://{{$main.Config.Webserver.Hostname}}:{{$main.Config.Webserver.Port}}/home/{{.Name}}">
+        {{end}}
+        {{if (eq .IconName "")}}
+            <span data-feather="feather"></span>
+        {{else}}
+            <span data-feather="{{.IconName}}"></span>
+        {{end}}
+            {{.DisplayName}}
+        </a>
+    </li>
+    {{end}}
+{{end}}

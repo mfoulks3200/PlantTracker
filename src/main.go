@@ -1,5 +1,7 @@
 package main
 
+import "sync"
+
 func main() {
 	ReadConfigurationFile()
 
@@ -7,5 +9,10 @@ func main() {
 		LogMessage("Did not detect existing database, creating new Database.db")
 		FirstTimeDBInit()
 	}
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go RunWebserver()
+	wg.Wait()
 
 }

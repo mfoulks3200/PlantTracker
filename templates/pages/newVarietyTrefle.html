@@ -1,0 +1,77 @@
+<input type="text" class="form-control" id="trefle-input" aria-describedby="trefleSearch" placeholder="Start typing to search the Trefle database...">
+<div class="spinner-border text-primary loading" style="width: 100px;height: 100px;position: fixed;top: 50%;margin-top: -50px;left: 50%;margin-left: -50px;display:none" role="status">
+    <span class="sr-only">Loading...</span>
+</div>
+<table class="table trefle-results" style="text-transform: capitalize;">
+        <thead>
+            <tr>
+            <th scope="col">Variety Name</th>
+            <th scope="col">Variety Family</th>
+            <th scope="col">Catagory</th>
+            <th scope="col">Ideal Sunlight</th>
+            <th scope="col">Ideal Water</th>
+            <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><a href="/home/plant/">Import Variety</a></td>
+            </tr>
+        </tbody>
+        </table>
+
+    <script>
+        var tableText = "";
+
+        $(document).ready(function(){
+            $(".loading").hide();
+            console.log("Loaded Trefle Live Search");
+            $("#trefle-input").on('input', function() {
+                $(".loading").show();
+                console.log("Searching for: "+$("#trefle-input").val());
+                if($("#trefle-input").val().length > 2){
+                jQuery.get( 'http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/api/trefle/query/'+$("#trefle-input").val(), function( data ) {
+                    //console.log(data);
+                    var obj = jQuery.parseJSON(data);
+                    console.log(obj);
+                    if(obj.length > 0){
+                        $(".trefle-results tbody").html("");
+                        tableText = "";
+                        for(var i = 0; i < obj.length; i++){
+                            if(obj[i].common_name != null){
+                                getPlantByID(obj[i]);
+                            }
+                        }
+                        $(".loading").hide();
+                    }else{
+                        $(".trefle-results tbody").html("");
+                    }
+                });
+                }
+            });
+        });
+
+        function getPlantByID(obj){
+            d = new $.Deferred();
+        jQuery.get( 'http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/api/trefle/plant/id/'+obj.id, function( data ) {
+            var plant = jQuery.parseJSON(data);
+            console.log(plant);
+            console.log(data);
+            tableText += "<tr>"
+            tableText += "<td>"+obj.common_name+"</td>"
+            tableText += "<td>"+plant.family_common_name+"</td>"
+            tableText += "<td></td>"
+            tableText += "<td>"+(plant.main_species.growth.shade_tolerance == "Intolerant" ? "Full" : "")+"</td>"
+            tableText += "<td>"+(plant.main_species.growth.moisture_use == null ? "" : plant.main_species.growth.moisture_use)+"</td>"
+            tableText += "<td><a href=\"http://{{.Config.Webserver.Hostname}}:{{.Config.Webserver.Port}}/home/varieties/new?name="+obj.common_name+"&family="+plant.family_common_name+"&sun="+(plant.main_species.growth.shade_tolerance == "Intolerant" ? "Full" : "")+"&water="+(plant.main_species.growth.moisture_use == null ? "" : plant.main_species.growth.moisture_use)+"\">Import Variety</a></td>"
+            tableText += "</tr>"
+            $(".trefle-results tbody").html(tableText);
+            d.resolve();
+        });
+        }
+    </script>
