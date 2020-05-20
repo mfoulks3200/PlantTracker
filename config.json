@@ -1,19 +1,19 @@
 {
-    "webserver": {
-        "port": "88",
-        "hostname": "192.168.0.43"
+    "Webserver": {
+        "Port": "88",
+        "Hostname": "192.168.0.43"
     },
-    "apis":{
-        "trefleAPIKey":""
+    "Apis":{
+        "TrefleAPIKey":""
     },
-    "sessions": {
-        "sessionExpiry": "3"
+    "Sessions": {
+        "SessionExpiry": "3"
     },
-    "branding": {
-        "title": "Plant Tracker"
+    "Branding": {
+        "Title": "Plant Tracker"
     },
-    "hardware": {
-        "labelMaker": {
+    "Hardware": {
+        "LabelMaker": {
             "Manufacturer": "Dymo",
             "LabelSize": "30252Address",
             "Barcode": "qr"

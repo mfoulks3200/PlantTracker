@@ -1,2 +1,4 @@
 
-*.exe
+planttracker.db
+*.crt
+*.key
