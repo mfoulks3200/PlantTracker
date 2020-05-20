@@ -2,3 +2,4 @@
 planttracker.db
 *.crt
 *.key
+*.db

@@ -11,7 +11,7 @@ var DatabaseCreationStatements []string
 
 //Create database
 func FirstTimeDBInit() {
-	db, err := sql.Open("sqlite3", "./PlantTracker.db")
+	db, err := sql.Open("sqlite3", "./Database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
