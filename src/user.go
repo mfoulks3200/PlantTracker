@@ -8,10 +8,11 @@ import (
 )
 
 type User struct {
-	UserID    int
-	Username  string
-	Hash      string
-	LastLogin string
+	UserID      int
+	Username    string
+	Hash        string
+	LastLogin   string
+	Permissions []string
 }
 
 type UserList struct {
@@ -32,6 +33,7 @@ func getAllUsers() UserList {
 			logMessage("Core", "user lookup error")
 			log.Fatal(err)
 		}
+		usr = getPermissions(usr)
 		usrs.Users = append(usrs.Users, usr)
 	}
 	err = stmt.Err()
@@ -55,6 +57,7 @@ func getUser(username string, password string) (usr User, found int) {
 			logMessage("Core", "user lookup error")
 			log.Fatal(err)
 		}
+		usr = getPermissions(usr)
 		if usr.Hash == "change" {
 			found = 1
 			return
@@ -130,5 +133,20 @@ func createUser(u User) (user User) {
 
 func deleteUser(userID int) {
 	db.Exec("DELETE FROM users WHERE userID = ?", userID)
+	return
+}
+
+func getPermissions(u User) (user User) {
+	var stmt, err = db.Query("select * from `permissions` where belongsTo = ? ", u.UserID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+	user = u
+	for stmt.Next() {
+		var pID, belongsTo, pStr string
+		err = stmt.Scan(&pID, &belongsTo, &pStr)
+		user.Permissions = append(user.Permissions, pStr)
+	}
 	return
 }

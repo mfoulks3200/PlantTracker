@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,14 +24,14 @@ type Page struct {
 }
 
 type PageFlags struct {
-	RequireLoggedIn bool
-	RequireAdmin    bool
-	PullPlants      bool
-	PullUsers       bool
-	PullVarieties   bool
-	PageTitle       string
-	PageName        string
-	URLPattern      string
+	RequireLoggedIn   bool
+	RequirePermission string
+	PullPlants        bool
+	PullUsers         bool
+	PullVarieties     bool
+	PageTitle         string
+	PageName          string
+	URLPattern        string
 }
 
 type Object struct {
@@ -71,12 +72,48 @@ func registerPage(p Page) {
 	SystemPages = append(SystemPages, p)
 }
 
+func readPageFlags(key string, value string, f PageFlags) (flags PageFlags, v bool) {
+
+	e := reflect.ValueOf(&f).Elem()
+
+	v = false
+
+	for i := 0; i < e.NumField(); i++ {
+		if key == e.Type().Field(i).Name {
+			switch e.Type().Field(i).Type {
+			case reflect.TypeOf((*string)(nil)).Elem():
+				e.Field(i).SetString(value)
+				v = true
+			case reflect.TypeOf((*int)(nil)).Elem():
+				tmp, _ := strconv.Atoi(value)
+				e.Field(i).SetInt(int64(tmp))
+				v = true
+			case reflect.TypeOf((*bool)(nil)).Elem():
+				if value == "true" {
+					e.Field(i).SetBool(true)
+					v = true
+				} else if value == "true" {
+					e.Field(i).SetBool(false)
+					v = true
+				}
+
+			}
+		}
+	}
+	flags = f
+	return
+}
+
 func renderPage(w http.ResponseWriter, r *http.Request) {
 
 	var state ViewState
 	state.Config = config
-
 	requestPath := r.URL.Path[len("/home/"):]
+	logMessage("Core", "Serving "+r.URL.Path)
+	if r.URL.Path == "/home" || r.URL.Path == "/home/" {
+		redirectPage(w, r, "/home/dashboard")
+		return
+	}
 	for i := 0; i < len(SystemPages); i++ {
 		requestParams := strings.Split(requestPath, "/")
 		if requestParams[0] == SystemPages[i].URLPattern {
@@ -85,10 +122,11 @@ func renderPage(w http.ResponseWriter, r *http.Request) {
 			} else {
 				state.ID = 0
 			}
-			state.Session, _ = restrictPage(w, r, SystemPages[i].Flags.RequireLoggedIn, SystemPages[i].Flags.RequireAdmin)
+			state.Session, _ = restrictPage(w, r, SystemPages[i].Flags.RequireLoggedIn, SystemPages[i])
 			state.PageTitle = SystemPages[i].PageTitle
 			state.PageName = SystemPages[i].PageName
 			state.Objects = SystemObjects
+
 			if SystemPages[i].Flags.PullPlants {
 				if state.Session.IsAdmin {
 					logMessage("DB", "Pulled global plant list")
@@ -181,39 +219,27 @@ func getPageFlags(path string) (f PageFlags) {
 	if strings.Contains(templateCode, "<!--ENDPAGEFLAGS!-->") {
 		re := regexp.MustCompile(`\r?\n`)
 
-		rawFlagBlock := strings.Split(templateCode, "<!--ENDPAGEFLAGS!-->")[0]
+		rawFlagBlock := strings.Split(templateCode, "{{safe \"<!--ENDPAGEFLAGS!-->\"}}")[0]
 		flagBlock := re.ReplaceAllString(rawFlagBlock, "")
 		flagPairs := strings.Split(flagBlock, ",")
 
 		var o Object
 		for i := 0; i < len(flagPairs); i++ {
 			flagPair := strings.Split(flagPairs[i], ": ")
-			switch flagPair[0] {
-			case "RequireLoggedIn":
-				f.RequireLoggedIn, _ = strconv.ParseBool(flagPair[1])
-			case "RequireAdmin":
-				f.RequireAdmin, _ = strconv.ParseBool(flagPair[1])
-			case "PullPlants":
-				f.PullPlants, _ = strconv.ParseBool(flagPair[1])
-			case "PullUsers":
-				f.PullUsers, _ = strconv.ParseBool(flagPair[1])
-			case "PullVarieties":
-				f.PullVarieties, _ = strconv.ParseBool(flagPair[1])
-			case "PageTitle":
-				f.PageTitle = flagPair[1]
-			case "PageName":
-				f.PageName = flagPair[1]
-			case "URLPattern":
-				f.URLPattern = flagPair[1]
-			case "ObjectName":
-				o.Name = flagPair[1]
-				o.DisplayName = strings.Title(flagPair[1])
-			case "DisplayName":
-				o.DisplayName = strings.Title(flagPair[1])
-			case "ObjectIcon":
-				o.IconName = flagPair[1]
-			default:
-				logMessage("core", "Unknown page flag '"+flagPair[0]+"' in template '"+path+"'")
+			var v bool
+			f, v = readPageFlags(flagPair[0], flagPair[1], f)
+			if !v {
+				switch flagPair[0] {
+				case "ObjectName":
+					o.Name = flagPair[1]
+					o.DisplayName = strings.Title(flagPair[1])
+				case "DisplayName":
+					o.DisplayName = strings.Title(flagPair[1])
+				case "ObjectIcon":
+					o.IconName = flagPair[1]
+				default:
+					logMessage("core", "Unknown page flag '"+flagPair[0]+"' in template '"+path+"'")
+				}
 			}
 		}
 		if o.Name != "" {
@@ -241,4 +267,8 @@ func contains(s []Object, e Object) bool {
 		}
 	}
 	return false
+}
+
+func redirectPage(w http.ResponseWriter, r *http.Request, path string) {
+	http.Redirect(w, r, "https://"+config.Webserver.Hostname+":"+config.Webserver.Port+path, 302)
 }

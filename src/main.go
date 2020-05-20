@@ -10,7 +10,7 @@ import (
 
 var (
 	AppVersion  string
-	AppBuildNum string
+	AppBuildNum string = "0.0.1"
 	AppCommit   string
 	BuildDate   string
 	BuildType   string

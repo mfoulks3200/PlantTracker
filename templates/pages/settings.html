@@ -4,8 +4,12 @@ ObjectName: settings,
 ObjectIcon: settings,
 URLPattern: settings,
 RequireLoggedIn: true,
-RequireAdmin: true,
-PullPlants: false,
-PullUsers: false,
-PullVarieties: false
+RequirePermission: core.settings.edit
 {{safe "<!--ENDPAGEFLAGS!-->"}}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            Settings
+        </div>
+    </div>
+</div>

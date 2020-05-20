@@ -81,7 +81,8 @@ func passChange(w http.ResponseWriter, r *http.Request) {
 	state.ID, _ = strconv.Atoi(strings.Split(id, "?")[0])
 	state.Config = config
 
-	session, _ := restrictPage(w, r, true, true)
+	var p Page
+	session, _ := restrictPage(w, r, true, p)
 
 	if len(r.URL.Path[len("/admin/passwordChange/"):]) > 3 {
 		var redir GetParam
@@ -165,7 +166,8 @@ func doLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func doPasswordChange(w http.ResponseWriter, r *http.Request) {
-	session, _ := restrictPage(w, r, true, true)
+	var p Page
+	session, _ := restrictPage(w, r, true, p)
 	err := r.ParseForm()
 	if err != nil {
 		panic(err)

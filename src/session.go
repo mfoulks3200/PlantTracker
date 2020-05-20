@@ -12,6 +12,7 @@ import (
 type Session struct {
 	UserID            int
 	Username          string
+	User              User
 	Token             string
 	ExpireTimeSeconds int
 	IsAdmin           bool
@@ -83,7 +84,7 @@ func checkLogin(w http.ResponseWriter, r *http.Request) (session Session, valid 
 	return
 }
 
-func restrictPage(w http.ResponseWriter, r *http.Request, requireLoggedIn bool, requireAdmin bool) (session Session, v bool) {
+func restrictPage(w http.ResponseWriter, r *http.Request, requireLoggedIn bool, page Page) (session Session, v bool) {
 	s, valid := checkLogin(w, r)
 	session = s
 	v = true
@@ -91,7 +92,8 @@ func restrictPage(w http.ResponseWriter, r *http.Request, requireLoggedIn bool, 
 		v = false
 		http.Redirect(w, r, "https://"+config.Webserver.Hostname+":"+config.Webserver.Port+"/login?e=2&r="+url.QueryEscape(r.URL.Path), 302)
 		return
-	} else if !session.IsAdmin && requireAdmin {
+	} else if !checkPermissions(session.User, page.Flags.RequirePermission) {
+		logMessage("Permissions", "Bounced user "+session.User.Username+" for inadiquate permissions, needed "+page.Flags.RequirePermission)
 		http.Redirect(w, r, "https://"+config.Webserver.Hostname+":"+config.Webserver.Port+"/home/permissions", 302)
 		return
 	}
